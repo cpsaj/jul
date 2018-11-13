@@ -1,0 +1,85 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="initial-scale=1.0" />
+    <title>Making your first Phaser 3 Game - Part 1</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    var score = 0;
+    var scoreText;
+
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 300,
+        height: 600,
+        physics: {
+            default: 'arcade',
+            arcade: {
+              gravity: { y: 300 },
+               debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+
+    function preload ()
+    {
+        this.load.image('sky', 'assets/sky.png');
+        this.load.image('star', 'assets/star.png');
+    }
+
+    function create ()
+    {
+        this.add.image(400, 300, 'sky');
+        var player = this.physics.add.image(400, 100, 'star');
+
+        cursors = this.input.keyboard.createCursorKeys();
+
+        this.input.on('pointerdown', function (pointer) {
+            this.physics.add.image(pointer.x, pointer.y, 'star', Phaser.Math.Between(0, 5));
+        }, this);
+
+    }
+
+    function update ()
+    {
+        var pointer = this.input.activePointer;
+        if (pointer.isDown) {
+            var touchX = pointer.x;
+            var touchY = pointer.y;
+        }
+               
+    }
+
+    function clicked (pointer) {
+        var touchX = pointer.x;
+        var touchY = pointer.y;
+        add.image(touchX, touchY, 'star');
+    }
+
+
+    function clickrelease (pointer) {
+        var touchX = pointer.x;
+        var touchY = pointer.y;
+    }
+
+</script>
+
+</body>
+</html>
