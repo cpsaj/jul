@@ -78,6 +78,7 @@
         {
             skorsten.x = -150;
         }        
+        skorsten.refreshBody();
                
     }
 
@@ -85,7 +86,6 @@
         var star = this.physics.add.image(pointer.x, pointer.y, 'star', Phaser.Math.Between(0, 5));
         star.body.setGravityY(1000) 
         this.physics.add.collider(skorsten, star, hitSkorsten, null, this);
-        skorsten.refreshBody();
     }
 
 
