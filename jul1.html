@@ -118,9 +118,10 @@
         }
     }
 
-    function hitPlayer1 (player, star) {
-        star.disableBody(true, true);
-        if( player1.angle == star.angle ) {
+    function hitPlayer1 (player, gave) {
+        gave.disableBody(true, true);
+        console.log('player angle: ' + Math.abs(player1.angle) + ' - gave angle: ' + Math.abs(gave.angle) );
+        if( Math.abs(player1.angle) == Math.abs(gave.angle) ) {
             score += 10;
         } else  {
             score -= 10;
@@ -129,9 +130,10 @@
         player1GaveFalder = 0;
     }
 
-    function hitPlayer2 (player, star) {
-        star.disableBody(true, true);
-        if( player2.angle == star.angle ) {
+    function hitPlayer2 (player, gave) {
+        gave.disableBody(true, true);
+        console.log('player angle: ' + Math.abs(player2.angle) + ' - gave angle: ' + Math.abs(gave.angle));
+        if( Math.abs(player2.angle) == Math.abs(gave.angle) ) {
             score += 10;
         } else  {
             score -= 10;
