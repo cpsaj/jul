@@ -1,0 +1,173 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Josefines Julespil</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    var score = 0;
+    var scoreText;
+
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 420,
+        height: 746,
+        physics: {
+            default: 'arcade',
+            arcade: {
+//              gravity: { y: 300 },
+               debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+    var julemand;
+    var julemandDirection = 1;
+    var julemandSpeed = 3;
+    var player1GaveFalder = 0;
+    var player2GaveFalder = 0;
+    var player1;
+    var player2;
+
+    function preload ()
+    {
+        this.load.image('sky', 'assets/sky.png');
+        this.load.image('gave1', 'assets/gave1.png');
+        this.load.image('gave2', 'assets/gave2.png');
+        this.load.image('julemand', 'assets/bucket.png');
+        this.load.image('player', 'assets/player.png');
+    }
+
+    function create ()
+    {
+        this.add.image(400, 300, 'sky');
+
+        julemand = this.physics.add.staticImage(10, 100, 'julemand');
+        scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+        player1 = this.physics.add.staticImage(70, 500, 'player');
+        player2 = this.physics.add.staticImage(350, 500, 'player');
+        player1.setInteractive();
+        player2.setInteractive();
+        player1.on('clicked', clickedPlayer1, this);
+        player2.on('clicked', clickedPlayer2, this);
+
+        this.input.on('gameobjectup', function (pointer, gameObject)
+        {
+            gameObject.emit('clicked', gameObject);
+        }, this);
+
+    }
+
+    function onEvent ()
+    {
+// NOOP        
+    }
+
+    function update ()
+    {
+        julemand.x += (julemandSpeed*julemandDirection);
+        if (julemand.x > 450 || julemand.x < 0)
+        {
+            julemandDirection = julemandDirection*-1;
+        }        
+        julemand.refreshBody();
+        if( julemand.x > 345 && julemand.x < 355 ) {
+            // kast gave
+            if( !player2GaveFalder ) {
+                player2GaveFalder = 1;
+                var newangle = Phaser.Math.RND.pick([0,180])
+                console.log(newangle)
+                if( newangle == 0 ) {
+                    var gave = this.physics.add.image(350, 100, 'gave1', Phaser.Math.Between(0, 5));
+                    gave.body.setGravityY(500) 
+                    gave.angle = newangle;
+                    this.physics.add.collider(player2, gave, hitPlayer2, null, this);
+                } else {
+                    var gave = this.physics.add.image(350, 100, 'gave2', Phaser.Math.Between(0, 5));
+                    gave.body.setGravityY(500) 
+                    gave.angle = newangle;
+                    this.physics.add.collider(player2, gave, hitPlayer2, null, this);
+                }
+
+            }
+        }
+        if( julemand.x > 65 && julemand.x < 75 ) {
+            if( !player1GaveFalder ) {
+                player1GaveFalder = 1;
+                var newangle = Phaser.Math.RND.pick([0,180])
+                console.log(newangle)
+                if( newangle == 0 ) {
+                    var gave = this.physics.add.image(70, 100, 'gave1', Phaser.Math.Between(0, 5));
+                    gave.body.setGravityY(500) 
+                    gave.angle = newangle;
+                    this.physics.add.collider(player1, gave, hitPlayer1, null, this);
+                } else {
+                    var gave = this.physics.add.image(70, 100, 'gave2', Phaser.Math.Between(0, 5));
+                    gave.body.setGravityY(500) 
+                    gave.angle = newangle;
+                    this.physics.add.collider(player1, gave, hitPlayer1, null, this);
+                }
+            }
+        }
+    }
+
+    function clickedPlayer1 (pointer, player) {
+        if( player1.angle == 0 ) {
+            player1.angle=180
+        } else {
+            player1.angle=0
+        }
+    }
+
+    function clickedPlayer2 (pointer) {
+        if( player2.angle == 0 ) {
+            player2.angle=180
+        } else {
+            player2.angle=0
+        }
+    }
+
+    function hitPlayer1 (player, star) {
+        star.disableBody(true, true);
+        if( player1.angle == star.angle ) {
+            score += 10;
+        } else  {
+            score -= 10;
+        }
+        scoreText.setText('Score: ' + score);
+        player1GaveFalder = 0;
+    }
+
+    function hitPlayer2 (player, star) {
+        star.disableBody(true, true);
+        if( player2.angle == star.angle ) {
+            score += 10;
+        } else  {
+            score -= 10;
+        }
+        scoreText.setText('Score: ' + score);
+        player2GaveFalder = 0;
+    }
+
+</script>
+
+</body>
+</html>
