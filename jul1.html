@@ -22,12 +22,11 @@
 
     var config = {
         type: Phaser.AUTO,
-        width: 420,
+        width: 370,
         height: 746,
         physics: {
             default: 'arcade',
             arcade: {
-//              gravity: { y: 300 },
                debug: false
             }
         },
@@ -52,6 +51,8 @@
         this.load.image('sky', 'assets/sky.png');
         this.load.image('gave1', 'assets/gave1.png');
         this.load.image('gave2', 'assets/gave2.png');
+        this.load.image('gave3', 'assets/gave2.png');
+        this.load.image('gave4', 'assets/gave2.png');
         this.load.image('julemand', 'assets/bucket.png');
         this.load.image('player', 'assets/player.png');
     }
@@ -63,7 +64,7 @@
         julemand = this.physics.add.staticImage(10, 100, 'julemand');
         scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
         player1 = this.physics.add.staticImage(70, 500, 'player');
-        player2 = this.physics.add.staticImage(350, 500, 'player');
+        player2 = this.physics.add.staticImage(280, 500, 'player');
         player1.setInteractive();
         player2.setInteractive();
         player1.on('clicked', clickedPlayer1, this);
@@ -76,11 +77,6 @@
 
     }
 
-    function onEvent ()
-    {
-// NOOP        
-    }
-
     function update ()
     {
         julemand.x += (julemandSpeed*julemandDirection);
@@ -89,59 +85,36 @@
             julemandDirection = julemandDirection*-1;
         }        
         julemand.refreshBody();
-        if( julemand.x > 345 && julemand.x < 355 ) {
+        if( julemand.x > 275 && julemand.x < 285 ) {
             // kast gave
             if( !player2GaveFalder ) {
                 player2GaveFalder = 1;
-                var newangle = Phaser.Math.RND.pick([0,180])
-                console.log(newangle)
-                if( newangle == 0 ) {
-                    var gave = this.physics.add.image(350, 100, 'gave1', Phaser.Math.Between(0, 5));
-                    gave.body.setGravityY(500) 
-                    gave.angle = newangle;
-                    this.physics.add.collider(player2, gave, hitPlayer2, null, this);
-                } else {
-                    var gave = this.physics.add.image(350, 100, 'gave2', Phaser.Math.Between(0, 5));
-                    gave.body.setGravityY(500) 
-                    gave.angle = newangle;
-                    this.physics.add.collider(player2, gave, hitPlayer2, null, this);
-                }
-
+                var gave = createGave(280, this)
+                this.physics.add.collider(player2, gave, hitPlayer2, null, this);
             }
         }
         if( julemand.x > 65 && julemand.x < 75 ) {
             if( !player1GaveFalder ) {
                 player1GaveFalder = 1;
-                var newangle = Phaser.Math.RND.pick([0,180])
-                console.log(newangle)
-                if( newangle == 0 ) {
-                    var gave = this.physics.add.image(70, 100, 'gave1', Phaser.Math.Between(0, 5));
-                    gave.body.setGravityY(500) 
-                    gave.angle = newangle;
-                    this.physics.add.collider(player1, gave, hitPlayer1, null, this);
-                } else {
-                    var gave = this.physics.add.image(70, 100, 'gave2', Phaser.Math.Between(0, 5));
-                    gave.body.setGravityY(500) 
-                    gave.angle = newangle;
-                    this.physics.add.collider(player1, gave, hitPlayer1, null, this);
-                }
+                var gave = createGave(70, this)
+                this.physics.add.collider(player1, gave, hitPlayer1, null, this);
             }
         }
     }
 
     function clickedPlayer1 (pointer, player) {
-        if( player1.angle == 0 ) {
-            player1.angle=180
-        } else {
+        if( player1.angle > 250 ) {
             player1.angle=0
+        } else {
+            player1.angle +=90
         }
     }
 
     function clickedPlayer2 (pointer) {
-        if( player2.angle == 0 ) {
-            player2.angle=180
-        } else {
+        if( player2.angle > 250 ) {
             player2.angle=0
+        } else {
+            player2.angle+=90
         }
     }
 
@@ -166,6 +139,28 @@
         scoreText.setText('Score: ' + score);
         player2GaveFalder = 0;
     }
+
+    function createGave(x,context) {
+        var newangle = Phaser.Math.RND.pick([0,90,180,270])
+        var gave;
+        console.log(newangle)
+        if( newangle == 0 ) {
+            gave = context.physics.add.image(x, 100, 'gave1'); 
+        } else if( newangle == 90 ) {
+            gave = context.physics.add.image(x, 100, 'gave2');
+        } else if( newangle == 180 ) {
+            gave = context.physics.add.image(x, 100, 'gave3');
+        } else {
+            gave = context.physics.add.image(x, 100, 'gave4');
+        }
+        gave.body.setGravityY(200) 
+        gave.angle = newangle;
+        return gave;
+    }
+
+
+
+
 
 </script>
 
