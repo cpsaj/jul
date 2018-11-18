@@ -40,7 +40,7 @@
     var game = new Phaser.Game(config);
     var julemand;
     var julemandDirection = 1;
-    var julemandSpeed = 3;
+    var julemandSpeed = 1;
     var player1GaveFalder = 0;
     var player2GaveFalder = 0;
     var player1;
@@ -153,7 +153,7 @@
         } else {
             gave = context.physics.add.image(x, 100, 'gave4');
         }
-        gave.body.setGravityY(200) 
+        gave.body.setGravityY(150) 
         gave.angle = newangle;
         return gave;
     }
