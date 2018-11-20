@@ -43,6 +43,9 @@
     var skorsten2;
     var skorsten3;
     var background;
+    var skorstensSpeed = 1;
+    var gaveSpeed = 450;
+    var nextLimit=100;
 
     function preload ()
     {
@@ -68,11 +71,11 @@
         julemand.on('clicked', clickedJulemand, this);
         var maane = this.physics.add.staticImage(300, 50, 'maane');
         maane.setScale(0.5)
-        scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+        scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
 
-        skorsten1 = this.physics.add.staticImage(500, 500, 'skorsten1');
-        skorsten2 = this.physics.add.staticImage(750, 500, 'skorsten2');
-        skorsten3 = this.physics.add.staticImage(1000, 500, 'skorsten3');
+        skorsten1 = this.physics.add.image(500, 500, 'skorsten1');
+        skorsten2 = this.physics.add.image(750, 500, 'skorsten2');
+        skorsten3 = this.physics.add.image(1000, 500, 'skorsten3');
 
 console.log(skorsten1)
 
@@ -86,56 +89,50 @@ console.log(skorsten1)
     function update ()
     {
         background.tilePositionX += 0.5;
-        skorsten1.x += -1;
-        skorsten2.x += -1;
-        skorsten3.x += -1;
-        if( skorsten1.x == -50 ) {
-            skorsten1.x = 1000;
+        skorsten1.x += -1 * skorstensSpeed;
+        skorsten2.x += -1 * skorstensSpeed;
+        skorsten3.x += -1 * skorstensSpeed;
+        if( skorsten1.x <= -50 ) {
+            skorsten1.x = Phaser.Math.RND.pick([500.750,1000]);;
         }
-        if( skorsten2.x == -50 ) {
-            skorsten2.x = 1000;
+        if( skorsten2.x <= -50 ) {
+            skorsten2.x = Phaser.Math.RND.pick([500.750,1000]);;
         }
-        if( skorsten2.x == -50 ) {
-            skorsten2.x = 1000;
+        if( skorsten3.x <= -50 ) {
+            skorsten3.x = Phaser.Math.RND.pick([500.750,1000]);
+        }
+        if(score == nextLimit ) {
+            nextLimit += 100;
+            skorstensSpeed = skorstensSpeed * 1.2;
+            gaveSpeed = gaveSpeed * 1.2;
+            console.log("next level")
+
         }
     }
 
     function clickedJulemand (pointer, julemand) {
         var gave = createGave(this)
-//        this.physics.add.collider(skorsten, gave, hitSkorsten, null, this);
+        this.physics.add.collider(skorsten1, gave, hitSkorsten, null, this);
+        this.physics.add.collider(skorsten2, gave, hitSkorsten, null, this);
+        this.physics.add.collider(skorsten3, gave, hitSkorsten, null, this);
 
     }
 
     function hitSkorsten (skorsten, gave) {
+        skorsten.body.moves=false;
         gave.disableBody(true, true);
         console.log(' HIT ' );
-        score -= 10;
+        score += 10;
         scoreText.setText('Score: ' + score);
-    }
-
-    function hitPlayer2 (player, gave) {
-        gave.disableBody(true, true);
-        console.log('player angle: ' + Math.abs(player2.angle) + ' - gave angle: ' + Math.abs(gave.angle));
-        if( Math.abs(player2.angle) == Math.abs(gave.angle) ) {
-            score += 10;
-        } else  {
-            score -= 10;
-        }
-        scoreText.setText('Score: ' + score);
-        player2GaveFalder = 0;
     }
 
     function createGave(context) {
         var id = Phaser.Math.RND.pick([1,2])
         var gave = context.physics.add.image(110, 200, 'gave'+id); 
         console.log(gave)
-        gave.body.setGravityY(450)
+        gave.body.setGravityY(gaveSpeed)
         return gave;
     }
-
-
-
-
 
 </script>
 
