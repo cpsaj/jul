@@ -152,7 +152,7 @@
 
     function skorstenRamt (skorsten, gave) {
         console.log(' HIT ' + gave.y + ' ' + skorsten.y  );
-        if( gave.y == 380 ) { // gælder kun hvis man rammer i toppen
+        if( gave.y > 370 && gave.y < 390 ) { // gælder kun hvis man rammer i toppen af skorstenen
             gave.disableBody(true, true); // gaven fjernes
             score = score + 10;
             gaverILuften = gaverILuften - 1;
