@@ -65,17 +65,17 @@
     {
         background = this.add.tileSprite(200,400,500,700, 'background');
 
-        julemand = this.physics.add.staticImage(170, 200, 'julemand1');
+        julemand = this.physics.add.staticImage(170, 110, 'julemand1');
         julemand.setScale(0.7)
         julemand.setInteractive();
         julemand.on('clicked', clickedJulemand, this);
         var maane = this.physics.add.staticImage(300, 50, 'maane');
-        maane.setScale(0.5)
+        maane.setScale(0.3)
         scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
 
-        skorsten1 = this.physics.add.image(500, 500, 'skorsten1');
-        skorsten2 = this.physics.add.image(750, 500, 'skorsten2');
-        skorsten3 = this.physics.add.image(1000, 500, 'skorsten3');
+        skorsten1 = this.physics.add.image(500, 400, 'skorsten1');
+        skorsten2 = this.physics.add.image(750, 400, 'skorsten2');
+        skorsten3 = this.physics.add.image(1000, 400, 'skorsten3');
 
 console.log(skorsten1)
 
@@ -88,7 +88,7 @@ console.log(skorsten1)
 
     function update ()
     {
-        background.tilePositionX += 0.5;
+        background.tilePositionX += 0.2;
         skorsten1.x += -1 * skorstensSpeed;
         skorsten2.x += -1 * skorstensSpeed;
         skorsten3.x += -1 * skorstensSpeed;
