@@ -16,9 +16,6 @@
 <body>
 
 <script type="text/javascript">
-    var score = 0;
-    var scoreText;
-
 
     var config = {
         type: Phaser.AUTO,
@@ -42,13 +39,20 @@
     var skorsten1;
     var skorsten2;
     var skorsten3;
+    var jorden;
     var background;
-    var skorstensSpeed = 1;
-    var gaveSpeed = 450;
-    var nextLimit=100;
+    var backgroundSpeed;
+    var skorstensSpeed;
+    var gaveSpeed;
+    var nextLimit;
+    var gaverILuften;
+    var score;
+    var scoreText;
+    var liv;
 
     function preload ()
     {
+        console.log("preload called")
         this.load.image('background', 'assets/background.png');
         this.load.image('julemand1', 'assets/julemand1.png');
         this.load.image('julemand2', 'assets/julemand2.png');
@@ -63,7 +67,17 @@
 
     function create ()
     {
+        console.log("Create called")
+        skorstensSpeed = 1;
+        gaveSpeed = 450;
+        nextLimit=100;
+        gaverILuften = 0;
+        score = 0;
+        scoreText = "";
+        liv = 3;
+
         background = this.add.tileSprite(200,400,500,700, 'background');
+        backgroundSpeed = 0.2;
 
         julemand = this.physics.add.staticImage(170, 110, 'julemand1');
         julemand.setScale(0.7)
@@ -76,8 +90,16 @@
         skorsten1 = this.physics.add.image(500, 450, 'skorsten1');
         skorsten2 = this.physics.add.image(750, 450, 'skorsten2');
         skorsten3 = this.physics.add.image(1000, 450, 'skorsten3');
+        skorsten1.body.moves=false; // skorstenen må ikke flytte sige når gaven rammer
+        skorsten2.body.moves=false; // skorstenen må ikke flytte sige når gaven rammer
+        skorsten3.body.moves=false; // skorstenen må ikke flytte sige når gaven rammer
 
-console.log(skorsten1)
+        var graphics = this.make.graphics().fillStyle(0x01f101).fillRect(0, 0, 500, 100);
+        graphics.generateTexture('jorden', 500, 100);
+        graphics.destroy();
+        jorden = this.physics.add.image(200, 550, 'jorden');
+        jorden.body.moves=false; // skorstenen må ikke flytte sige når gaven rammer
+
 
         this.input.on('gameobjectup', function (pointer, gameObject)
         {
@@ -88,7 +110,7 @@ console.log(skorsten1)
 
     function update ()
     {
-        background.tilePositionX += 0.2;
+        background.tilePositionX += backgroundSpeed;
         skorsten1.x += -1 * skorstensSpeed;
         skorsten2.x += -1 * skorstensSpeed;
         skorsten3.x += -1 * skorstensSpeed;
@@ -106,30 +128,63 @@ console.log(skorsten1)
             skorstensSpeed = skorstensSpeed * 1.2;
             gaveSpeed = gaveSpeed * 1.2;
             console.log("next level")
-
+        }
+        scoreText.setText('Score: ' + score);
+        if( score < 0 ) {
+            score = 0;
+        } 
+        if( liv <= 0 ) {
+            gameover(this);
         }
     }
 
     function clickedJulemand (pointer, julemand) {
-        var gave = createGave(this)
-        this.physics.add.collider(skorsten1, gave, hitSkorsten, null, this);
-        this.physics.add.collider(skorsten2, gave, hitSkorsten, null, this);
-        this.physics.add.collider(skorsten3, gave, hitSkorsten, null, this);
+        if( gaverILuften < 3 ) {
+            var nyGave = createGave(this)
+            this.physics.add.collider(skorsten1, nyGave, skorstenRamt, null, this);
+            this.physics.add.collider(skorsten2, nyGave, skorstenRamt, null, this);
+            this.physics.add.collider(skorsten3, nyGave, skorstenRamt, null, this);
+            this.physics.add.collider(jorden, nyGave, jordenRamt, null, this);
+            gaverILuften++;
+        }
 
     }
 
-    function hitSkorsten (skorsten, gave) {
-        skorsten.body.moves=false;
-        gave.disableBody(true, true);
-        console.log(' HIT ' );
-        score += 10;
-        scoreText.setText('Score: ' + score);
+    function skorstenRamt (skorsten, gave) {
+        console.log(' HIT ' + gave.y + ' ' + skorsten.y  );
+        if( gave.y == 380 ) { // gælder kun hvis man rammer i toppen
+            gave.disableBody(true, true); // gaven fjernes
+            score = score + 10;
+            gaverILuften = gaverILuften + 1;
+        }
+    }
+
+    function jordenRamt (jorden, gave) {
+        console.log(' Jorden er ramt ' );
+        gave.disableBody(true, true); // gaven fjernes
+        score = score - 10;
+        gaverILuften = gaverILuften - 1;
+        liv = liv - 1;
+    }
+
+    function gameover(context) {
+        context.physics.pause();
+        var gameOverText = context.add.text((game.config.width / 2)-100, (game.config.height / 2)-200, 'GAME OVER \n<Nyt spil>', { fontSize: '32px', fill: '#fff' });
+        // Set z-index just in case your text show behind the background.
+        gameOverText.setDepth(1);
+        skorstensSpeed = 0;
+        backgroundSpeed = 0;
+        gameOverText.setInteractive();
+        gameOverText.on('clicked', nySpil, context);
+    }
+
+    function nySpil() {
+        this.scene.restart();
     }
 
     function createGave(context) {
         var id = Phaser.Math.RND.pick([1,2])
         var gave = context.physics.add.image(110, 120, 'gave'+id); 
-        console.log(gave)
         gave.body.setGravityY(gaveSpeed)
         return gave;
     }
