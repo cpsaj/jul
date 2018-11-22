@@ -94,7 +94,7 @@
         skorsten2.body.moves=false; // skorstenen må ikke flytte sige når gaven rammer
         skorsten3.body.moves=false; // skorstenen må ikke flytte sige når gaven rammer
 
-        var graphics = this.make.graphics().fillStyle(0x01f101).fillRect(0, 0, 500, 100);
+        var graphics = this.make.graphics().fillStyle(0x000).fillRect(0, 0, 500, 100);
         graphics.generateTexture('jorden', 500, 100);
         graphics.destroy();
         jorden = this.physics.add.image(200, 550, 'jorden');
@@ -155,7 +155,7 @@
         if( gave.y == 380 ) { // gælder kun hvis man rammer i toppen
             gave.disableBody(true, true); // gaven fjernes
             score = score + 10;
-            gaverILuften = gaverILuften + 1;
+            gaverILuften = gaverILuften - 1;
         }
     }
 
