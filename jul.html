@@ -73,9 +73,9 @@
         maane.setScale(0.3)
         scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
 
-        skorsten1 = this.physics.add.image(500, 400, 'skorsten1');
-        skorsten2 = this.physics.add.image(750, 400, 'skorsten2');
-        skorsten3 = this.physics.add.image(1000, 400, 'skorsten3');
+        skorsten1 = this.physics.add.image(500, 450, 'skorsten1');
+        skorsten2 = this.physics.add.image(750, 450, 'skorsten2');
+        skorsten3 = this.physics.add.image(1000, 450, 'skorsten3');
 
 console.log(skorsten1)
 
@@ -128,7 +128,7 @@ console.log(skorsten1)
 
     function createGave(context) {
         var id = Phaser.Math.RND.pick([1,2])
-        var gave = context.physics.add.image(110, 200, 'gave'+id); 
+        var gave = context.physics.add.image(110, 120, 'gave'+id); 
         console.log(gave)
         gave.body.setGravityY(gaveSpeed)
         return gave;
