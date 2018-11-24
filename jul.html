@@ -16,24 +16,26 @@
 <body>
 
 <script type="text/javascript">
-
+    
+    // spil konfiguration - fortæller phaser noget om hvordan spillet skal virke
     var config = {
         type: Phaser.AUTO,
         width: 370,
         height: 746,
-        physics: {
+        physics: {  
             default: 'arcade',
             arcade: {
                debug: false
             }
         },
-        scene: {
+        scene: { // vi har kun een scene og bruger standard navnene for spil funktionerne. 
             preload: preload,
             create: create,
             update: update
         }
     };
 
+    // en masse variabler vi skal bruge i spillet.
     var game = new Phaser.Game(config);
     var julemand;
     var skorsten1;
@@ -44,16 +46,19 @@
     var backgroundSpeed;
     var skorstensSpeed;
     var gaveSpeed;
-    var nextLimit;
+    var næsteBaneVedScore;
     var gaverILuften;
     var score;
     var scoreText;
     var liv;
 
+    // Denne funktion kalder Phaser som det første når nogen går ind på websiden.
+    // Vi bruer den til at hente de billeder vi skal bruge til sprites. De ligger alle i en underfolder
+    // kaldet "assets".
     function preload ()
     {
         console.log("preload called")
-        this.load.image('background', 'assets/background.png');
+        this.load.image('background', 'assets/background.png'); // hent billede og giv det et navn
         this.load.image('julemand1', 'assets/julemand1.png');
         this.load.image('julemand2', 'assets/julemand2.png');
         this.load.image('julemand3', 'assets/julemand3.png');
@@ -65,129 +70,160 @@
         this.load.image('maane', 'assets/maane.png');
     }
 
+    // Denne funktion kalder Phaser for at starte et spil. Den kaldes efter preload og automatisk når nogen 
+    // går ind på web siden.
+    // Man kalder også denne for at starte spillet igen efter gameover.
     function create ()
     {
         console.log("Create called")
+        // ved genstart af spil er vi nødt til at sætte variablerne til start værdier.
         skorstensSpeed = 1;
+        backgroundSpeed = 0.2;
         gaveSpeed = 450;
-        nextLimit=100;
+        næsteBaneVedScore=100;
         gaverILuften = 0;
         score = 0;
         scoreText = "";
         liv = 3;
 
+        // Opret baggrunds sprite som tile sprite - så der bliver ved med at komme en. 
         background = this.add.tileSprite(200,400,500,700, 'background');
-        backgroundSpeed = 0.2;
 
+        // opret julemands spriten
         julemand = this.physics.add.staticImage(170, 110, 'julemand1');
-        julemand.setScale(0.7)
-        julemand.setInteractive();
-        julemand.on('clicked', clickedJulemand, this);
+        julemand.setScale(0.7);  // for at gøre den lidt mindre  
+        julemand.setInteractive(); // den skal kunne opfange kliks
+        julemand.on('clicked', clickedJulemand, this); // hvis der klikkes på den så udfør funktionen "clickedJulemand" 
+        
+        // opret måne spriten og lave den lidt mindre
         var maane = this.physics.add.staticImage(300, 50, 'maane');
         maane.setScale(0.3)
-        scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
 
+        // Skriv score/point oppe i øverste venstre hjørne.
+        scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
+        
+        // opret skorstens spritesene
         skorsten1 = this.physics.add.image(500, 450, 'skorsten1');
-        skorsten2 = this.physics.add.image(750, 450, 'skorsten2');
-        skorsten3 = this.physics.add.image(1000, 450, 'skorsten3');
+        skorsten2 = this.physics.add.image(650, 450, 'skorsten2');
+        skorsten3 = this.physics.add.image(850, 450, 'skorsten3');
         skorsten1.body.moves=false; // skorstenen må ikke flytte sige når gaven rammer
         skorsten2.body.moves=false; // skorstenen må ikke flytte sige når gaven rammer
         skorsten3.body.moves=false; // skorstenen må ikke flytte sige når gaven rammer
 
+        // Opret jorden som pakker kan ramme hvis man kaster forbi skorstenene 
+        // denne kommer ikke fra et billede men er tegnet i Phaser som grafik.
         var graphics = this.make.graphics().fillStyle(0x000).fillRect(0, 0, 500, 100);
-        graphics.generateTexture('jorden', 500, 100);
+        graphics.generateTexture('jorden', 500, 100); // dette laver et billede ved navn jorden.
         graphics.destroy();
         jorden = this.physics.add.image(200, 550, 'jorden');
         jorden.body.moves=false; // skorstenen må ikke flytte sige når gaven rammer
 
-
-        this.input.on('gameobjectup', function (pointer, gameObject)
-        {
-            gameObject.emit('clicked', gameObject);
-        }, this);
-
+        // denne skal være der ellers kan man ikke få events fra sprites
+        this.input.on('gameobjectup', 
+                      function (pointer, gameObject) {gameObject.emit('clicked', gameObject);}, 
+                      this);
     }
 
+    // Denne funktion kaldes hele tiden af Phaser - for hver frame. Det samme som "for altid" i scratch eller "step" in gamemaker.
+    // Her styrer vi skorstenenes bevægelse, hastighed på spillet alt efter antal point og om der er game over.
     function update ()
     {
+        // bevæg baggrund 
         background.tilePositionX += backgroundSpeed;
+
+        // bevæg skorstenene
         skorsten1.x += -1 * skorstensSpeed;
         skorsten2.x += -1 * skorstensSpeed;
         skorsten3.x += -1 * skorstensSpeed;
+
+        // hvis skorstenen er nået ud af skærmen mod venstre så flyt den ud til højre så den kommer igen
+        // for at de ikke kommer i samme mønster vælge vi tilfældig mellem placeringer mod højre.
         if( skorsten1.x <= -50 ) {
-            skorsten1.x = Phaser.Math.RND.pick([500.750,1000]);;
+            skorsten1.x = Phaser.Math.RND.pick([500,750,1000]);;
         }
         if( skorsten2.x <= -50 ) {
-            skorsten2.x = Phaser.Math.RND.pick([500.750,1000]);;
+            skorsten2.x = Phaser.Math.RND.pick([500,750,1000]);;
         }
         if( skorsten3.x <= -50 ) {
-            skorsten3.x = Phaser.Math.RND.pick([500.750,1000]);
+            skorsten3.x = Phaser.Math.RND.pick([500,750,1000]);
         }
-        if(score == nextLimit ) {
-            nextLimit += 100;
-            skorstensSpeed = skorstensSpeed * 1.2;
-            gaveSpeed = gaveSpeed * 1.2;
+
+        // hvis vi rammer næste 
+        if(score == næsteBaneVedScore ) {
             console.log("next level")
+            næsteBaneVedScore += 100;
+            skorstensSpeed = skorstensSpeed * 1.2; // 20% hurtigere skorstene
+            gaveSpeed = gaveSpeed * 1.2; // 20% hurtigere gave kast
         }
+        
+        // Opdater score teksten på skærmen
         scoreText.setText('Score: ' + score);
         if( score < 0 ) {
             score = 0;
         } 
+        // Hvis antal liv er 0 så kør gameover funktionen. 
         if( liv <= 0 ) {
             gameover(this);
         }
     }
 
+    // Denne funktion kaldes når man klikker julemanden.
     function clickedJulemand (pointer, julemand) {
-        if( gaverILuften < 3 ) {
-            var nyGave = createGave(this)
+        if( gaverILuften < 3 ) {  // man kan max kaste 3 ad gangen.
+            // lav en ny gave
+            var nyGave = lavEnGave(this)
+            // sæt kollisions funktioner op.
             this.physics.add.collider(skorsten1, nyGave, skorstenRamt, null, this);
             this.physics.add.collider(skorsten2, nyGave, skorstenRamt, null, this);
             this.physics.add.collider(skorsten3, nyGave, skorstenRamt, null, this);
             this.physics.add.collider(jorden, nyGave, jordenRamt, null, this);
-            gaverILuften++;
+            // vi har kastet en gave så nu er der en mere i luften.
+            gaverILuften = gaverILuften + 1;
         }
-
     }
 
+    // opretter en ny gave sprite.
+    function lavEnGave(context) {
+        var id = Phaser.Math.RND.pick([1,2]) // vælg mellem 2 gaver
+        var gave = context.physics.add.image(110, 120, 'gave'+id); 
+        gave.body.setGravityY(gaveSpeed); // Gravity styre at gaven falder.
+        return gave;
+    }
+
+    // denne funktion kaldes når en gave rammer en skorsten.
     function skorstenRamt (skorsten, gave) {
         console.log(' HIT ' + gave.y + ' ' + skorsten.y  );
         if( gave.y > 370 && gave.y < 390 ) { // gælder kun hvis man rammer i toppen af skorstenen
-            gave.disableBody(true, true); // gaven fjernes
-            score = score + 10;
-            gaverILuften = gaverILuften - 1;
+            gave.disableBody(true, true); // gaven spriten fjernes
+            score = score + 10; // man får 10 point
+            gaverILuften = gaverILuften - 1; // der er ny en mindre gave i luften.
         }
     }
 
+    // denne funktion kaldes når en gave rammer en skorsten.
     function jordenRamt (jorden, gave) {
         console.log(' Jorden er ramt ' );
         gave.disableBody(true, true); // gaven fjernes
-        score = score - 10;
-        gaverILuften = gaverILuften - 1;
-        liv = liv - 1;
+        score = score - 10;  // man får minus point
+        liv = liv - 1; // og man mister et liv
+        gaverILuften = gaverILuften - 1; // der er ny en mindre gave i luften.
     }
 
+    // denne funktion kaldes ved gameover. Stopper spillet og viser en tekst.
     function gameover(context) {
         context.physics.pause();
         var gameOverText = context.add.text((game.config.width / 2)-100, (game.config.height / 2)-200, 'GAME OVER \n<Nyt spil>', { fontSize: '32px', fill: '#fff' });
-        // Set z-index just in case your text show behind the background.
-        gameOverText.setDepth(1);
-        skorstensSpeed = 0;
-        backgroundSpeed = 0;
-        gameOverText.setInteractive();
-        gameOverText.on('clicked', nySpil, context);
+        gameOverText.setDepth(1); // sikre at teksten bliver vist ovenpå andet grafik
+        skorstensSpeed = 0;  // stop skorstene
+        backgroundSpeed = 0; // stop baggrund
+        gameOverText.setInteractive(); // man skal kunne klikke på gameover teksten
+        gameOverText.on('clicked', nytSpil, context); // ved klik kaldes funktionen nytSpil.
     }
 
-    function nySpil() {
+    function nytSpil() {
         this.scene.restart();
     }
 
-    function createGave(context) {
-        var id = Phaser.Math.RND.pick([1,2])
-        var gave = context.physics.add.image(110, 120, 'gave'+id); 
-        gave.body.setGravityY(gaveSpeed)
-        return gave;
-    }
 
 </script>
 
